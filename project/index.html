@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="Домашняя работа по формам, JSON и Web Storage"
+      content="Коллекция ярких матчей Криштиану Роналду"
     />
-    <title>Сохраненная карточка</title>
+    <title>Матчи Роналду</title>
     <link rel="icon" href="data:," />
     <link rel="stylesheet" href="styles.css" />
     <script src="script.js" defer></script>
@@ -26,10 +26,10 @@
     <main class="page-shell">
       <section class="intro" aria-labelledby="page-title">
         <p class="intro__eyebrow">Формы и хранилища</p>
-        <h1 class="intro__title" id="page-title">Сохраненная карточка</h1>
+        <h1 class="intro__title" id="page-title">Матчи Роналду</h1>
         <p class="intro__lead">
-          Выберите тему, настройте форму и самостоятельно свяжите ввод,
-          отображение и хранение данных.
+          Хет-трики, решающие голы и вечера, которые хочется помнить.
+          Соберите свою коллекцию матчей Криштиану Роналду.
         </p>
       </section>
 
@@ -37,28 +37,31 @@
         <header class="workspace__header">
           <div>
             <p class="workspace__kicker">Рабочая область</p>
-            <h2 class="workspace__title" id="workspace-title">Ваша тема</h2>
+            <h2 class="workspace__title" id="workspace-title">Коллекция матчей</h2>
           </div>
 
-          <p class="workspace__status" aria-live="polite">Данные еще не проверены</p>
+          <p class="workspace__status" aria-live="polite">Матчей пока нет</p>
         </header>
 
-        <!-- Состояние 1: показывается, когда сохраненных данных нет. -->
+        <p class="workspace__message" role="status" hidden></p>
+
         <section class="app-state app-state--empty" data-state-panel="empty">
           <p class="app-state__index">01</p>
           <div class="app-state__content">
-            <h3 class="app-state__title">Карточка пока не создана</h3>
+            <h3 class="app-state__title">Первый матч в коллекции</h3>
             <p class="app-state__text">
-              Начните с формы. После сохранения это состояние должно смениться
-              просмотром карточки.
+              Добавьте матч сами или загрузите подборку из семи известных игр:
+              от хет-триков до удара через себя в Турине.
             </p>
             <button class="button button--primary" type="button" data-action="create">
-              Создать карточку
+              Добавить матч
+            </button>
+            <button class="button button--secondary" type="button" data-action="samples">
+              Загрузить подборку
             </button>
           </div>
         </section>
 
-        <!-- Состояние 2: студент дополняет форму под выбранную тему. -->
         <section class="app-state app-state--editor" data-state-panel="editor" hidden>
           <p class="app-state__index">02</p>
 
@@ -66,31 +69,64 @@
             <header class="card-form__header">
               <div>
                 <p class="card-form__kicker">Редактирование</p>
-                <h3 class="card-form__title">Данные карточки</h3>
+                <h3 class="card-form__title">Данные матча</h3>
               </div>
-              <p class="card-form__note">Добавьте еще минимум три осмысленных поля</p>
+              <p class="card-form__note">Поля со знаком * обязательны</p>
             </header>
 
-            <!-- Это один пример связки label, id и name. Остальные поля создайте сами. -->
-            <div class="field">
-              <label class="field__label" for="card-title">Название</label>
-              <input
-                class="field__control"
-                id="card-title"
-                name="title"
-                type="text"
-                minlength="3"
-                placeholder="Например, Городской маршрут"
-                required
-              />
-              <span class="field__hint">Минимум 3 символа</span>
+            <div class="card-form__grid">
+              <div class="field">
+                <label class="field__label" for="home-team">Хозяева *</label>
+                <input class="field__control" id="home-team" name="homeTeam" type="text"
+                  minlength="2" maxlength="80" placeholder="Португалия" required />
+              </div>
+              <div class="field">
+                <label class="field__label" for="away-team">Гости *</label>
+                <input class="field__control" id="away-team" name="awayTeam" type="text"
+                  minlength="2" maxlength="80" placeholder="Испания" required />
+              </div>
+              <div class="field">
+                <label class="field__label" for="match-date">Дата матча *</label>
+                <input class="field__control" id="match-date" name="date" type="date" required />
+              </div>
+              <div class="field">
+                <label class="field__label" for="competition">Турнир *</label>
+                <select class="field__control" id="competition" name="competition" required>
+                  <option value="">Выберите турнир</option>
+                  <option value="world-cup">Чемпионат мира</option>
+                  <option value="world-cup-qualifiers">Отбор на чемпионат мира</option>
+                  <option value="champions-league">Лига чемпионов</option>
+                  <option value="la-liga">Ла Лига</option>
+                  <option value="other">Другой турнир</option>
+                </select>
+              </div>
+              <div class="field">
+                <label class="field__label" for="score">Счёт матча *</label>
+                <input class="field__control" id="score" name="score" type="text"
+                  pattern="[0-9]{1,2}:[0-9]{1,2}" maxlength="5" placeholder="3:3" required
+                  aria-describedby="score-hint" />
+                <span class="field__hint" id="score-hint">Хозяева:гости, например 3:3</span>
+              </div>
+              <div class="field">
+                <label class="field__label" for="goals">Голы Роналду *</label>
+                <input class="field__control" id="goals" name="goals" type="number"
+                  min="0" max="99" step="1" placeholder="3" required />
+              </div>
             </div>
-
-            <!-- Добавьте поля, которые описывают именно вашу тему. -->
+            <div class="field">
+              <label class="field__label" for="note">Чем запомнился матч</label>
+              <textarea class="field__control" id="note" name="note" maxlength="500"
+                placeholder="Хет-трик, решающий штрафной или красивый гол"></textarea>
+            </div>
+            <div class="field">
+              <label class="field__label" for="source">Ссылка на отчёт о матче</label>
+              <input class="field__control" id="source" name="source" type="url"
+                maxlength="500" placeholder="https://…" />
+            </div>
 
             <div class="card-form__actions">
               <button class="button button--primary" type="submit">
-                Сохранить карточку
+                Сохранить матч
               </button>
               <button class="button button--secondary" type="button" data-action="cancel">
                 Отменить
@@ -99,31 +135,40 @@
           </form>
         </section>
 
-        <!-- Состояние 3: сюда нужно вывести все сохраненные значения. -->
         <section class="app-state app-state--viewer" data-state-panel="viewer" hidden>
           <p class="app-state__index">03</p>
 
-          <article class="saved-card">
-            <p class="saved-card__label">Сохраненная карточка</p>
-            <h3 class="saved-card__title">Название появится здесь</h3>
-
-            <dl class="saved-card__details">
-              <div class="saved-card__row">
-                <dt>Свойство</dt>
-                <dd>Значение</dd>
-              </div>
-              <!-- Добавьте строки или другую разметку для всех полей формы. -->
-            </dl>
-
-            <div class="saved-card__actions">
-              <button class="button button--primary" type="button" data-action="edit">
-                Редактировать
-              </button>
-              <button class="button button--danger" type="button" data-action="delete">
-                Удалить
+          <div class="collection">
+            <div class="collection__header">
+              <h3 class="collection__title">Сохранённые матчи</h3>
+              <button class="button button--primary" type="button" data-action="create">
+                Добавить матч
               </button>
             </div>
-          </article>
+            <ul class="match-list" aria-label="Выберите матч"></ul>
+            <article class="saved-card">
+              <p class="saved-card__label">Матч в деталях</p>
+              <h3 class="saved-card__title"></h3>
+              <dl class="saved-card__details">
+                <div class="saved-card__row"><dt>Дата</dt><dd data-value="date"></dd></div>
+                <div class="saved-card__row"><dt>Турнир</dt><dd data-value="competition"></dd></div>
+                <div class="saved-card__row"><dt>Счёт</dt><dd data-value="score"></dd></div>
+                <div class="saved-card__row"><dt>Голы Роналду</dt><dd data-value="goals"></dd></div>
+                <div class="saved-card__row"><dt>О матче</dt><dd data-value="note"></dd></div>
+                <div class="saved-card__row"><dt>Источник</dt><dd><a class="saved-card__source"
+                  target="_blank" rel="noopener noreferrer" hidden>Отчёт о матче</a>
+                  <span class="saved-card__no-source">Не указан</span></dd></div>
+              </dl>
+              <div class="saved-card__actions">
+                <button class="button button--primary" type="button" data-action="edit">
+                  Редактировать
+                </button>
+                <button class="button button--danger" type="button" data-action="delete">
+                  Удалить
+                </button>
+              </div>
+            </article>
+          </div>
         </section>
       </section>
     </main>
