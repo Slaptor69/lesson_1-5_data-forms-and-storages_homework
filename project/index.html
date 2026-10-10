@@ -44,6 +44,17 @@
         </header>
 
         <p class="workspace__message" role="status" hidden></p>
+        <div class="draft" hidden>
+          <p class="draft__text" role="status"></p>
+          <div class="draft__actions">
+            <button class="button button--secondary" type="button" data-action="restore-draft">
+              Продолжить черновик
+            </button>
+            <button class="button button--secondary" type="button" data-action="discard-draft">
+              Удалить черновик
+            </button>
+          </div>
+        </div>
 
         <section class="app-state app-state--empty" data-state-panel="empty">
           <p class="app-state__index">01</p>

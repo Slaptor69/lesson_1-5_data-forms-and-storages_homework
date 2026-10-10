@@ -195,6 +195,29 @@ textarea {
   overflow-wrap: anywhere;
 }
 
+.draft {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 20px 32px;
+  background: #edf1ff;
+  border-bottom: 1px solid var(--line);
+}
+
+.draft__text {
+  flex: 1 1 200px;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.draft__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
 .card-form__grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

@@ -6,6 +6,9 @@ const list = document.querySelector(".match-list");
 const cardTitle = document.querySelector(".saved-card__title");
 const sourceLink = document.querySelector(".saved-card__source");
 const noSource = document.querySelector(".saved-card__no-source");
+const draftPanel = document.querySelector(".draft");
+const draftText = document.querySelector(".draft__text");
+const restoreDraftButton = document.querySelector('[data-action="restore-draft"]');
 
 const competitions = {
   "world-cup": "Чемпионат мира",
@@ -17,11 +20,14 @@ const competitions = {
 const fieldNames = ["homeTeam", "awayTeam", "date", "competition", "score", "goals", "note", "source"];
 const dateFormat = new Intl.DateTimeFormat("ru-RU", { timeZone: "UTC" });
 const storageKey = "ronaldo-matches";
+const draftKey = "ronaldo-match-draft";
 
 let matches = [];
 let selectedId = null;
 let editingId = null;
 let currentState = "empty";
+let draft = null;
+let editingBase = null;
 
 function showMessage(text) {
   message.textContent = text;
@@ -34,6 +40,62 @@ function showState(state) {
     panel.hidden = panel.dataset.statePanel !== state;
   });
   status.textContent = state === "editor" ? "Редактирование матча" : `Матчей в коллекции: ${matches.length}`;
+  renderDraft();
+}
+
+function renderDraft() {
+  draftPanel.hidden = !draft;
+  restoreDraftButton.hidden = currentState === "editor";
+  draftText.textContent = currentState === "editor"
+    ? "Черновик сохранён в этой вкладке. Подтверждённая карточка не изменена."
+    : "Есть несохранённый черновик. Можно продолжить заполнение или удалить его.";
+}
+
+function readStoredDraft() {
+  try {
+    const json = sessionStorage.getItem(draftKey);
+    if (json === null) return null;
+    const stored = JSON.parse(json);
+    if (!stored || typeof stored !== "object" || !stored.values
+      || !fieldNames.every((name) => typeof stored.values[name] === "string" && stored.values[name].length <= 500)
+      || !(stored.editingId === null || (typeof stored.editingId === "string" && /^[a-zA-Z0-9-]{1,80}$/.test(stored.editingId)))
+      || !(stored.baseMatch === null || (typeof stored.baseMatch === "string" && stored.baseMatch.length <= 5000))) {
+      throw new Error("Неподходящий черновик");
+    }
+    return stored;
+  } catch {
+    showMessage("Не удалось восстановить черновик. Сохранённая коллекция доступна отдельно.");
+    return null;
+  }
+}
+
+function saveDraft() {
+  if (currentState !== "editor") return;
+  const data = new FormData(form);
+  draft = {
+    editingId,
+    baseMatch: editingBase,
+    values: Object.fromEntries(fieldNames.map((name) => [name, data.get(name)])),
+  };
+  renderDraft();
+  try {
+    sessionStorage.setItem(draftKey, JSON.stringify(draft));
+  } catch {
+    draftText.textContent = "Не удалось сохранить черновик в браузере. Не перезагружайте вкладку до сохранения матча.";
+  }
+}
+
+function clearDraft() {
+  try {
+    sessionStorage.removeItem(draftKey);
+    draft = null;
+    editingBase = null;
+    renderDraft();
+    return true;
+  } catch {
+    showMessage("Не удалось удалить черновик из хранилища браузера.");
+    return false;
+  }
 }
 
 function matchTitle(match) {
@@ -173,9 +235,14 @@ function fillForm(values) {
 }
 
 function openEditor(match = null) {
+  if (draft) {
+    showMessage("Сначала продолжите существующий черновик или удалите его.");
+    return;
+  }
   showMessage("");
   form.reset();
   editingId = match?.id ?? null;
+  editingBase = match ? JSON.stringify(match) : null;
   if (match) fillForm(match);
   showState("editor");
   form.elements.namedItem("homeTeam").focus();
@@ -199,11 +266,40 @@ form.addEventListener("submit", (event) => {
     ? matches.map((item) => item.id === editingId ? match : item)
     : [...matches, match];
   if (!saveMatches(nextMatches)) return;
+  const draftCleared = clearDraft();
   selectedId = match.id;
   editingId = null;
   form.reset();
   renderCollection();
-  showMessage("Матч сохранён.");
+  showMessage(draftCleared ? "Матч сохранён." : "Матч сохранён, но временный черновик не удалось удалить.");
+});
+
+form.addEventListener("input", saveDraft);
+form.addEventListener("change", saveDraft);
+
+restoreDraftButton.addEventListener("click", () => {
+  if (!draft) return;
+  form.reset();
+  fillForm(draft.values);
+  editingId = draft.editingId;
+  editingBase = draft.baseMatch;
+  const originalDeleted = editingId && !matches.some((match) => match.id === editingId);
+  if (originalDeleted) {
+    editingId = null;
+    editingBase = null;
+  }
+  showState("editor");
+  saveDraft();
+  showMessage(originalDeleted ? "Исходный матч удалён. Черновик можно сохранить как новый матч." : "");
+  form.elements.namedItem("homeTeam").focus();
+});
+
+document.querySelector('[data-action="discard-draft"]').addEventListener("click", () => {
+  if (!clearDraft()) return;
+  editingId = null;
+  form.reset();
+  renderCollection();
+  showMessage("Черновик удалён.");
 });
 
 document.querySelectorAll('[data-action="create"]').forEach((button) => {
@@ -212,9 +308,10 @@ document.querySelectorAll('[data-action="create"]').forEach((button) => {
 
 document.querySelector('[data-action="cancel"]').addEventListener("click", () => {
   editingId = null;
+  editingBase = null;
   form.reset();
-  showMessage("");
   renderCollection();
+  showMessage(draft ? "Редактирование закрыто. Черновик можно продолжить." : "");
 });
 
 document.querySelector('[data-action="edit"]').addEventListener("click", () => {
@@ -223,6 +320,7 @@ document.querySelector('[data-action="edit"]').addEventListener("click", () => {
 
 document.querySelector('[data-action="delete"]').addEventListener("click", () => {
   if (!saveMatches(matches.filter((match) => match.id !== selectedId))) return;
+  if (draft?.editingId === selectedId) clearDraft();
   selectedId = null;
   form.reset();
   renderCollection();
@@ -257,5 +355,6 @@ document.querySelector('[data-action="samples"]').addEventListener("click", asyn
 });
 
 matches = readStoredMatches();
+draft = readStoredDraft();
 renderCollection();
 
