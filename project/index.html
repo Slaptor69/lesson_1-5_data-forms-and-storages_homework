@@ -43,6 +43,17 @@
           <p class="workspace__status" aria-live="polite">Матчей пока нет</p>
         </header>
 
+        <div class="workspace__tools">
+          <button class="button button--secondary" type="button" data-action="export" disabled>
+            Экспорт JSON
+          </button>
+          <button class="button button--secondary" type="button" data-action="import">
+            Импорт JSON
+          </button>
+          <input id="import-file" type="file" accept=".json,application/json"
+            aria-label="JSON-файл с матчами" hidden />
+          <p class="workspace__tools-note">Импорт добавляет новые матчи и обновляет совпадающие.</p>
+        </div>
         <p class="workspace__message" role="status" hidden></p>
         <div class="draft" hidden>
           <p class="draft__text" role="status"></p>
@@ -141,6 +152,9 @@
               </button>
               <button class="button button--secondary" type="button" data-action="cancel">
                 Отменить
+              </button>
+              <button class="button button--secondary" type="button" data-action="save-as-new" hidden>
+                Сохранить отдельным матчем
               </button>
             </div>
           </form>
