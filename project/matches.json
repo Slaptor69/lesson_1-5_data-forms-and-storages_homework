@@ -1,0 +1,79 @@
+[
+  {
+    "id": "portugal-spain-2018",
+    "homeTeam": "Португалия",
+    "awayTeam": "Испания",
+    "date": "2018-06-15",
+    "competition": "world-cup",
+    "score": "3:3",
+    "goals": 3,
+    "note": "Хет-трик в первом матче группового этапа ЧМ-2018. Роналду сравнял счёт со штрафного на 88-й минуте.",
+    "source": "https://www.fifa.com/en/tournaments/mens/worldcup/articles/portugal-spain-russia-2018-group-stage"
+  },
+  {
+    "id": "atletico-real-2012",
+    "homeTeam": "Атлетико Мадрид",
+    "awayTeam": "Реал Мадрид",
+    "date": "2012-04-11",
+    "competition": "la-liga",
+    "score": "1:4",
+    "goals": 3,
+    "note": "Хет-трик в мадридском дерби: гол со штрафного, дальний удар и пенальти.",
+    "source": "https://www.uefa.com/uefachampionsleague/news/0239-0e96daa62779-4c4dc0cbefa1-1000--ronaldo-v-atletico-griezmann-v-madrid/"
+  },
+  {
+    "id": "atletico-real-2016",
+    "homeTeam": "Атлетико Мадрид",
+    "awayTeam": "Реал Мадрид",
+    "date": "2016-11-19",
+    "competition": "la-liga",
+    "score": "0:3",
+    "goals": 3,
+    "note": "Все три гола «Реала» в выездном дерби на стадионе «Висенте Кальдерон» забил Роналду.",
+    "source": "https://www.uefa.com/uefachampionsleague/news/0239-0e96daa62779-4c4dc0cbefa1-1000--ronaldo-v-atletico-griezmann-v-madrid/"
+  },
+  {
+    "id": "real-atletico-2017",
+    "homeTeam": "Реал Мадрид",
+    "awayTeam": "Атлетико Мадрид",
+    "date": "2017-05-02",
+    "competition": "champions-league",
+    "score": "3:0",
+    "goals": 3,
+    "note": "Хет-трик в первом матче полуфинала Лиги чемпионов. Три гола дали «Реалу» преимущество перед ответной встречей.",
+    "source": "https://www.uefa.com/uefachampionsleague/news/0239-0e96d80bccab-59a3cd0ec78a-1000--ronaldo-hat-trick-leaves-real-madrid-on-brink-of-final/"
+  },
+  {
+    "id": "juventus-atletico-2019",
+    "homeTeam": "Ювентус",
+    "awayTeam": "Атлетико Мадрид",
+    "date": "2019-03-12",
+    "competition": "champions-league",
+    "score": "3:0",
+    "goals": 3,
+    "note": "После поражения 0:2 в первой встрече «Ювентус» прошёл в четвертьфинал благодаря хет-трику Роналду в ответном матче.",
+    "source": "https://www.juventus.com/en/news/articles/juveatletico-matchreport"
+  },
+  {
+    "id": "sweden-portugal-2013",
+    "homeTeam": "Швеция",
+    "awayTeam": "Португалия",
+    "date": "2013-11-19",
+    "competition": "world-cup-qualifiers",
+    "score": "2:3",
+    "goals": 3,
+    "note": "Хет-трик в ответном стыковом матче отбора на ЧМ-2014. Португалия выиграла противостояние со Швецией и вышла на чемпионат мира.",
+    "source": "https://inside.fifa.com/news/five-unforgettable-european-play-offs"
+  },
+  {
+    "id": "juventus-real-2018",
+    "homeTeam": "Ювентус",
+    "awayTeam": "Реал Мадрид",
+    "date": "2018-04-03",
+    "competition": "champions-league",
+    "score": "0:3",
+    "goals": 2,
+    "note": "Дубль в первом матче четвертьфинала Лиги чемпионов. Второй гол Роналду забил ударом через себя на 64-й минуте.",
+    "source": "https://www.juventus.com/it/news/articoli/match-juventus-real-madrid-uefa-champions-league"
+  }
+]
