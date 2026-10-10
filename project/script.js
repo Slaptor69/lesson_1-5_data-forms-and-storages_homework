@@ -16,6 +16,7 @@ const competitions = {
 };
 const fieldNames = ["homeTeam", "awayTeam", "date", "competition", "score", "goals", "note", "source"];
 const dateFormat = new Intl.DateTimeFormat("ru-RU", { timeZone: "UTC" });
+const storageKey = "ronaldo-matches";
 
 let matches = [];
 let selectedId = null;
@@ -76,6 +77,31 @@ function isValidMatch(match) {
 function isValidCollection(value) {
   return Array.isArray(value) && value.length <= 500 && value.every(isValidMatch)
     && new Set(value.map((match) => match.id)).size === value.length;
+}
+
+function readStoredMatches() {
+  try {
+    const json = localStorage.getItem(storageKey);
+    if (json === null) return [];
+    const stored = JSON.parse(json);
+    if (!isValidCollection(stored)) throw new Error("Неподходящие данные");
+    return stored;
+  } catch {
+    showMessage("Не удалось прочитать сохранённую коллекцию. Можно загрузить подборку или добавить матчи заново.");
+    return [];
+  }
+}
+
+function saveMatches(nextMatches) {
+  try {
+    if (nextMatches.length) localStorage.setItem(storageKey, JSON.stringify(nextMatches));
+    else localStorage.removeItem(storageKey);
+    matches = nextMatches;
+    return true;
+  } catch {
+    showMessage("Не удалось сохранить изменения. Проверьте, разрешено ли браузеру хранить данные, и попробуйте ещё раз.");
+    return false;
+  }
 }
 
 function renderCollection() {
@@ -169,9 +195,10 @@ form.addEventListener("submit", (event) => {
     showMessage("В коллекции может быть не больше 500 матчей.");
     return;
   }
-  matches = editingId
+  const nextMatches = editingId
     ? matches.map((item) => item.id === editingId ? match : item)
     : [...matches, match];
+  if (!saveMatches(nextMatches)) return;
   selectedId = match.id;
   editingId = null;
   form.reset();
@@ -195,7 +222,7 @@ document.querySelector('[data-action="edit"]').addEventListener("click", () => {
 });
 
 document.querySelector('[data-action="delete"]').addEventListener("click", () => {
-  matches = matches.filter((match) => match.id !== selectedId);
+  if (!saveMatches(matches.filter((match) => match.id !== selectedId))) return;
   selectedId = null;
   form.reset();
   renderCollection();
@@ -219,7 +246,7 @@ document.querySelector('[data-action="samples"]').addEventListener("click", asyn
     const samples = await response.json();
     if (!isValidCollection(samples)) throw new Error("Неподходящие данные");
     const additions = samples.filter((sample) => !matches.some((match) => match.id === sample.id));
-    matches = [...matches, ...additions];
+    if (!saveMatches([...matches, ...additions])) return;
     renderCollection();
     showMessage(`Добавлено матчей: ${additions.length}.`);
   } catch {
@@ -229,5 +256,6 @@ document.querySelector('[data-action="samples"]').addEventListener("click", asyn
   }
 });
 
+matches = readStoredMatches();
 renderCollection();
 
