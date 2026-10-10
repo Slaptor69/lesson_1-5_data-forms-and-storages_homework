@@ -67,8 +67,8 @@ function renderDraft() {
   draftPanel.hidden = !draft;
   restoreDraftButton.hidden = currentState === "editor";
   draftText.textContent = currentState === "editor"
-    ? "Черновик сохранён в этой вкладке. Подтверждённая карточка не изменена."
-    : "Есть несохранённый черновик. Можно продолжить заполнение или удалить его.";
+    ? "Черновик сохранён. Карточка пока осталась без изменений."
+    : "Вы начали заполнять форму. Можно продолжить с того же места или удалить черновик.";
   updateTools();
 }
 
@@ -85,7 +85,7 @@ function readStoredDraft() {
     }
     return stored;
   } catch {
-    showMessage("Не удалось восстановить черновик. Сохранённая коллекция доступна отдельно.");
+    showMessage("Не получилось открыть черновик. Попробуйте заполнить форму заново.");
     return null;
   }
 }
@@ -102,7 +102,7 @@ function saveDraft() {
   try {
     sessionStorage.setItem(draftKey, JSON.stringify(draft));
   } catch {
-    draftText.textContent = "Не удалось сохранить черновик в браузере. Не перезагружайте вкладку до сохранения матча.";
+    draftText.textContent = "Браузер не сохранил черновик. Сначала сохраните матч, потом перезагружайте страницу.";
   }
 }
 
@@ -114,13 +114,13 @@ function clearDraft() {
     renderDraft();
     return true;
   } catch {
-    showMessage("Не удалось удалить черновик из хранилища браузера.");
+    showMessage("Не получилось удалить черновик. Попробуйте ещё раз.");
     return false;
   }
 }
 
 function matchTitle(match) {
-  return `${match.homeTeam} — ${match.awayTeam}`;
+  return `${match.homeTeam} - ${match.awayTeam}`;
 }
 
 function formatDate(date) {
@@ -168,7 +168,7 @@ function readStoredMatches() {
   try {
     json = localStorage.getItem(storageKey);
   } catch {
-    showMessage("Хранилище браузера недоступно. Проверьте настройки сохранения данных.");
+    showMessage("Браузер не даёт открыть сохранённые матчи. Проверьте, разрешено ли сайту хранить данные.");
     return null;
   }
   if (json === null) return [];
@@ -177,7 +177,7 @@ function readStoredMatches() {
     if (!isValidCollection(stored)) throw new Error("Неподходящие данные");
     return stored;
   } catch {
-    showMessage("Сохранённая коллекция повреждена. Добавьте матчи или загрузите подборку, чтобы сохранить новую коллекцию.");
+    showMessage("Не получилось прочитать сохранённые матчи. Можно добавить их заново или загрузить подборку.");
     return [];
   }
 }
@@ -196,7 +196,7 @@ function saveMatches(nextMatches) {
     matches = nextMatches;
     return true;
   } catch {
-    showMessage("Не удалось сохранить изменения. Проверьте, разрешено ли браузеру хранить данные, и попробуйте ещё раз.");
+    showMessage("Браузер не сохранил изменения. Проверьте, разрешено ли сайту хранить данные, и попробуйте ещё раз.");
     return false;
   }
 }
@@ -271,7 +271,7 @@ function fillForm(values) {
 
 function openEditor(match = null) {
   if (draft) {
-    showMessage("Сначала продолжите существующий черновик или удалите его.");
+    showMessage("У вас уже есть черновик. Продолжите его или удалите, чтобы открыть другую форму.");
     return;
   }
   showMessage("");
@@ -287,7 +287,7 @@ form.addEventListener("submit", (event) => {
   event.preventDefault();
   if (!refreshMatches()) return;
   if (updateEditorConflict()) {
-    showMessage("Этот матч изменён или удалён в другой вкладке. Чтобы не затереть изменения, сохраните черновик отдельным матчем или удалите черновик и откройте актуальную карточку.");
+    showMessage("Этот матч уже изменили или удалили в другой вкладке. Сохраните свой вариант отдельным матчем. Или удалите черновик и откройте карточку заново.");
     return;
   }
   const match = {
@@ -311,7 +311,7 @@ form.addEventListener("submit", (event) => {
   editingId = null;
   form.reset();
   renderCollection();
-  showMessage(draftCleared ? "Матч сохранён." : "Матч сохранён, но временный черновик не удалось удалить.");
+  showMessage(draftCleared ? "Матч сохранён." : "Матч сохранён, но черновик не получилось удалить.");
 });
 
 form.addEventListener("input", saveDraft);
@@ -330,8 +330,8 @@ restoreDraftButton.addEventListener("click", () => {
   }
   showState("editor");
   saveDraft();
-  showMessage(originalDeleted ? "Исходный матч удалён. Черновик можно сохранить как новый матч."
-    : updateEditorConflict() ? "Исходный матч изменился. Черновик можно сохранить отдельным матчем." : "");
+  showMessage(originalDeleted ? "Матч удалили, но черновик остался. Его можно сохранить как новый матч."
+    : updateEditorConflict() ? "Матч уже изменили. Ваш черновик можно сохранить отдельно." : "");
   form.elements.namedItem("homeTeam").focus();
 });
 
@@ -352,7 +352,7 @@ document.querySelector('[data-action="cancel"]').addEventListener("click", () =>
   editingBase = null;
   form.reset();
   renderCollection();
-  showMessage(draft ? "Редактирование закрыто. Черновик можно продолжить." : "");
+  showMessage(draft ? "Форма закрыта, черновик остался. К нему можно вернуться позже." : "");
 });
 
 document.querySelector('[data-action="edit"]').addEventListener("click", () => {
@@ -409,14 +409,14 @@ saveAsNewButton.addEventListener("click", () => {
   editingBase = null;
   saveDraft();
   updateEditorConflict();
-  showMessage("Нажмите «Сохранить матч», чтобы добавить черновик отдельной карточкой.");
+  showMessage("Теперь нажмите «Сохранить матч». Ваш вариант добавится отдельной карточкой.");
 });
 
 exportButton.addEventListener("click", () => {
   if (!refreshMatches()) return;
   if (!matches.length) {
     renderCollection();
-    showMessage("Коллекция пуста. Добавьте матч перед экспортом.");
+    showMessage("Пока нечего выгружать. Сначала добавьте матч.");
     return;
   }
   const blob = new Blob([JSON.stringify(matches, null, 2)], { type: "application/json" });
@@ -428,7 +428,7 @@ exportButton.addEventListener("click", () => {
   link.click();
   link.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
-  showMessage("Коллекция экспортирована. Несохранённый черновик в файл не включён.");
+  showMessage("Файл с матчами готов. Черновик в него не входит.");
 });
 
 importButton.addEventListener("click", () => {
@@ -446,7 +446,7 @@ importInput.addEventListener("change", async () => {
     const incoming = JSON.parse((await file.text()).replace(/^\uFEFF/, ""));
     if (!isValidCollection(incoming)) throw new Error("Структура файла");
     if (currentState === "editor" || draft) {
-      showMessage("Сначала завершите редактирование и сохраните или удалите черновик, затем повторите импорт.");
+      showMessage("Сначала сохраните матч или удалите черновик. После этого можно загрузить файл.");
       return;
     }
     if (!refreshMatches()) return;
@@ -461,7 +461,7 @@ importInput.addEventListener("change", async () => {
     renderCollection();
     showMessage(`Импортировано матчей: ${incoming.length}. Всего в коллекции: ${matches.length}.`);
   } catch {
-    showMessage("Не удалось импортировать файл. Используйте JSON в формате «Экспорт JSON»: до 500 матчей с корректными данными, размер файла — до 1 МБ. Коллекция не изменена.");
+    showMessage("Файл не подошёл. Нужен JSON в том же формате, что и при экспорте: до 500 матчей и до 1 МБ. Ваши матчи остались без изменений.");
   } finally {
     importing = false;
     updateTools();
@@ -475,11 +475,11 @@ window.addEventListener("storage", (event) => {
     updateTools();
     const conflict = updateEditorConflict();
     showMessage(conflict
-      ? "Редактируемый матч изменён или удалён в другой вкладке. Ваш ввод сохранён в форме; его можно сохранить отдельным матчем."
-      : "Коллекция обновлена в другой вкладке. Ваш незавершённый ввод сохранён.");
+      ? "Этот матч уже изменили или удалили в другой вкладке. Ваш текст остался в форме, его можно сохранить отдельным матчем."
+      : "Список матчей обновился в другой вкладке. Ваш ввод остался в форме.");
   } else {
     renderCollection();
-    showMessage("Коллекция обновлена в другой вкладке.");
+    showMessage("Список матчей обновился в другой вкладке.");
   }
 });
 
